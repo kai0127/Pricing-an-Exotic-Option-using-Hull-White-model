@@ -59,7 +59,7 @@ correlation_foreign_asset_and_exchange_rate = fred_data.get_correlation_foreign_
 correlation_foreign_asset_and_domestic_risk_free_rate = 0.3
 
 
-# 4. Monte Carlo
+# 6. Monte Carlo
 iteration_times = 1000  # decides how many times of iterations for a single run of Monte Carlo
 
 
@@ -109,10 +109,10 @@ def cumulative_average_of_list(listt):
 # compute the cumulative average of Exotic option's prices
 cumulative_average_of_Exotic_Option_prices = cumulative_average_of_list(list_of_prices_Exotic_option)
 
-# 5. Print the approximated price of the Exotic Option
+# 7. Print the approximated price of the Exotic Option
 print('The price of the Exotic Option is approximately (in USD): ', cumulative_average_of_Exotic_Option_prices[NUM_SIMULATION-1])
 
-# 6.PLOT
+# 8.PLOT
 fig, (ax1,ax2) = plt.subplots(2)
 ax1.plot(single_time_monte_carlo.timeline, df_domestic_short_rate_processes)
 ax1.set_title("xlabel = years")
