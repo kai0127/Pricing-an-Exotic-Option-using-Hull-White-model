@@ -1,4 +1,4 @@
-#  Copyright (c) 2022/5/7 下午11:47 Last Modified By Kaiwen Zhou
+#  Copyright (c) 2022/5/8 上午1:04 Last Modified By Kaiwen Zhou
 
 """
 This file contains methods and functions by which we can run the Monte Carlo Simulation as many times as you want and
@@ -82,57 +82,42 @@ single_time_monte_carlo = Single_time_Monte_Carlo(
                                                   foreign_asset_vol=foreign_asset_vol,
                                                   exchange_rate_vol=exchange_rate_vol
                                                   )
+# Setting up for Monte Carlo
+NUM_SIMULATION = 1000  # num of Monte Carlo simulations
+df_domestic_short_rate_processes = pd.DataFrame()  # dataframe storing r_d process for each simulation
+list_of_prices_Exotic_option = []  # list storing the price of the Exotic Option for each simulation
 
-lis = []
-for j in range(100):
-    NUM_SIMULATION = 500  # num of Monte Carlo simulations
-    df_domestic_short_rate_processes = pd.DataFrame()  # dataframe storing r_d process for each simulation
-    list_of_prices_Exotic_option = []  # list storing the price of the Exotic Option for each simulation
-
-    # Start Simulating
-    for i in range(NUM_SIMULATION):
-        single_time_monte_carlo.start_monte_carlo()  # single run
-        # store the simulated r_d process in the dataframe
-        df_domestic_short_rate_processes[i] = single_time_monte_carlo.domestic_risk_free_rate_list
-        # store the price of the Exotic Option in list_of_prices_Exotic_option
-        list_of_prices_Exotic_option.append(single_time_monte_carlo.price_Exotic_Option_at_maturity())
+# Start Simulating
+for i in range(NUM_SIMULATION):
+    single_time_monte_carlo.start_monte_carlo()  # single run
+    # store the simulated r_d process in the dataframe
+    df_domestic_short_rate_processes[i] = single_time_monte_carlo.domestic_risk_free_rate_list
+    # store the price of the Exotic Option in list_of_prices_Exotic_option
+    list_of_prices_Exotic_option.append(single_time_monte_carlo.price_Exotic_Option_at_maturity())
 
 
-    def cumulative_average_of_list(listt):
-        """
-        Calculate the cumulative average of the given list
-        :param listt: list of numbers
-        :return: list of cumulative average of the given list
-        """
-        list_cumulative_average = [sum(listt[:i + 1]) / (i + 1) for i in range(len(listt))]
-        return list_cumulative_average
+def cumulative_average_of_list(listt):
+    """
+    Calculate the cumulative average of the given list
+    :param listt: list of numbers
+    :return: list of cumulative average of the given list
+    """
+    list_cumulative_average = [sum(listt[:i + 1]) / (i + 1) for i in range(len(listt))]
+    return list_cumulative_average
 
 
-    # compute the cumulative average of Exotic option's prices
-    cumulative_average_of_Exotic_Option_prices = cumulative_average_of_list(list_of_prices_Exotic_option)
-    lis.append(cumulative_average_of_Exotic_Option_prices[NUM_SIMULATION-1])
-    print("mean ", np.mean(lis))
-    print("std", np.std(lis))
+# compute the cumulative average of Exotic option's prices
+cumulative_average_of_Exotic_Option_prices = cumulative_average_of_list(list_of_prices_Exotic_option)
 
-
-'''
+# 5. Print the approximated price of the Exotic Option
 print('The price of the Exotic Option is approximately (in USD): ', cumulative_average_of_Exotic_Option_prices[NUM_SIMULATION-1])
-# PLOT
-#x_index = np.linspace(0, 30, 100)
+
+# 6.PLOT
 fig, (ax1,ax2) = plt.subplots(2)
-#plt.plot(x_index, Theta(x_index,a),'y', x_index,G(x_index, a),'r',x_index,first_derivative_of_G(x_index, a),'b',x_index,bond_data.get_value_for_T_derivative_of_forward_rate(x_index),'g',x_index,bond_data.get_value_for_forward_rate(x_index),'m')
-#plt.plot(x_index, Theta(x_index,a),x_index, bond_data.get_value_for_T_derivative_of_forward_rate(x_index) + first_derivative_of_G(x_index, a) + a * (bond_data.get_value_for_forward_rate(x_index) + G(x_index, a)))
-#plt.plot(timeline, domestic_risk_free_rate)
-#plt.plot(timeline, nikkei_price)
-#plt.plot(single_time_monte_carlo.timeline, single_time_monte_carlo.domestic_risk_free_rate_list)
-#plt.plot(df_domestic_short_rate_processes)
-#plt.plot(cumulative_average_of_Exotic_Option_prices)
 ax1.plot(single_time_monte_carlo.timeline, df_domestic_short_rate_processes)
 ax1.set_title("xlabel = years")
 ax1.set_ylabel('domestic short rate')
 ax2.plot(cumulative_average_of_Exotic_Option_prices)
 ax2.set_xlabel('number of simulations')
 ax2.set_ylabel('cumulative average of \n simulated Exotic Option prices')
-#plt.plot(x_index, Theta(x_index,a),'y', x_index,G(x_index, a),'r', x_index,B_t_T(0, x_index, a),'m')
 plt.show()
-'''
